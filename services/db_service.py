@@ -1,5 +1,6 @@
 import pyodbc
 from config.settings import get_db_connection_string
+import logging
 
 def connect_to_db():
     """
@@ -7,6 +8,7 @@ def connect_to_db():
     """
     try:
         connection_string = get_db_connection_string()
+        logging.info(f"Connecting to Azure SQL with connection string: {connection_string}")
         return pyodbc.connect(connection_string)
     except pyodbc.Error as e:
         raise ConnectionError(f"Error connecting to Azure SQL: {e}")

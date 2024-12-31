@@ -13,10 +13,10 @@ def get_db_connection_string():
     """
     Construct the Azure SQL database connection string from individual environment variables.
     """
-    server = get_env_variable("AZURE_SQL_SERVER")
-    database = get_env_variable("AZURE_SQL_DATABASE")
-    username = get_env_variable("AZURE_SQL_USER")
-    password = get_env_variable("AZURE_SQL_PASSWORD")
+    server = get_env_variable("DB_HOST")
+    database = get_env_variable("DB_NAME")
+    username = get_env_variable("DB_USER")
+    password = get_env_variable("DB_PASSWORD")
     return (
         f"Driver={{ODBC Driver 18 for SQL Server}};"
         f"Server=tcp:{server}.database.windows.net,1433;"
