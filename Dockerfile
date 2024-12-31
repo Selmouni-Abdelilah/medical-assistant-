@@ -10,23 +10,21 @@ RUN apt-get update
 
 # PYODBC DEPENDENCES
 RUN apt-get install -y tdsodbc libgssapi-krb5-2
-RUN apt install -y unixodbc-dev unixodbc-bin 
+RUN apt install -y unixodbc-dev
 RUN apt-get clean -y
-ADD odbcinst.ini /etc/odbcinst.ini
 
 
 # DEPENDECES FOR DOWNLOAD ODBC DRIVER
 RUN apt-get install apt-transport-https 
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-RUN curl https://packages.microsoft.com/config/debian/11/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+RUN curl https://packages.microsoft.com/config/debian/11/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
 RUN apt-get update
 
 # INSTALL ODBC DRIVER
-RUN sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
 # CONFIGURE ENV FOR /bin/bash TO USE MSODBCSQL17
 RUN echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
-RUN source ~/.bashrc
 
 COPY requirements.txt /
 RUN pip install -r /requirements.txt
