@@ -4,13 +4,19 @@ def get_env_variable(key):
     """
     Get an environment variable or raise an exception.
     """
-    value = os.environ.get(f'CUSTOMCONNSTR_:{key}')
+    value = os.environ[f'CUSTOMCONNSTR_{key}']
     if not value:
         raise ValueError(f"Environment variable {key} is not set.")
     return value
 
-def get_db_connection_string():
+def get_db_config():
     """
-    Get Azure SQL database connection string from environment variables.
+    Get database connection parameters.
     """
-    return get_env_variable("AZURE_SQL_CONNECTIONSTRING")
+    return {
+        "dbname": get_env_variable("DB_NAME"),
+        "user": get_env_variable("DB_USER"),
+        "password": get_env_variable("DB_PASSWORD"),
+        "host": get_env_variable("DB_HOST"),
+        "port": get_env_variable("DB_PORT")
+    }

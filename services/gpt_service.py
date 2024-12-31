@@ -2,6 +2,7 @@ import os
 from langchain.prompts import PromptTemplate
 from langchain_openai import AzureChatOpenAI
 from config.settings import get_env_variable
+import logging
 
 # Initialize GPT chain
 def initialize_gpt_chain():
@@ -16,16 +17,22 @@ Questions:
 """
     prompt = PromptTemplate(input_variables=["input"], template=prompt_template)
 
-    llm = AzureChatOpenAI(
-        openai_api_key=get_env_variable("AZURE_OPENAI_API_KEY"),
-        azure_endpoint=get_env_variable("AZURE_OPENAI_ENDPOINT"),
-        azure_deployment="gpt-4"
-    )
-
+    try:
+        llm = AzureChatOpenAI(
+            openai_api_key=get_env_variable("AZURE_OPENAI_API_KEY"),
+            azure_endpoint=get_env_variable("AZURE_OPENAI_ENDPOINT"),
+            api_version="2024-05-01-preview", 
+            azure_deployment="gpt-4"
+        )
+    except Exception as e:
+        logging.error(f"Error initializing GPT chain: {str(e)}")
+        raise e
+    
     return prompt | llm
 
 # Generate questions
 def generate_questions(message):
     chain = initialize_gpt_chain()
     response = chain.invoke({"input": message})
+    logging.info(f"modwl response: {str(response)}")
     return [q.strip() for q in response.content.strip().split("\n") if q.strip()]

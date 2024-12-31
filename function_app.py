@@ -4,7 +4,7 @@ from handlers.save_data import handle_save_data
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-@app.route(route="generate_questions", auth_level=func.AuthLevel.FUNCTION)
+@app.route(route="generate_questions", auth_level=func.AuthLevel.ANONYMOUS)
 def generate_questions(req: func.HttpRequest) -> func.HttpResponse:
     return handle_generate_questions(req)
     
