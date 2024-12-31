@@ -178,3 +178,59 @@ Ensure that the following environment variables are set:
     - `CUSTOMCONNSTR_AZURE_SQL_USER`
     - `CUSTOMCONNSTR_AZURE_SQL_PASSWORD`
     - `CUSTOMCONNSTR_DB_PORT`
+Here's an example of a **README** section that explains how to use `test_app.py` to test the application from the console:
+
+---
+
+## Testing the Application from the Console
+
+To test the application, you can use the `test_app.py` script provided. This script interacts with the Azure Functions endpoints to generate questions based on user input and save the corresponding answers.
+
+### Prerequisites
+
+1. **Python Environment**: Ensure you have Python installed (version 3.7 or higher recommended).
+2. **Dependencies**: Install the required libraries by running:
+   ```bash
+   pip install requests
+   ```
+
+### Usage Instructions
+
+1. Open a terminal or command prompt.
+2. Run the `test_app.py` script:
+   ```bash
+   python test_app.py
+   ```
+
+3. Follow the prompts:
+   - **Describe Symptoms**: Enter your symptoms when prompted (e.g., "I have a headache and feel nauseous").
+   - The application will send this information to the `generate_questions` Azure Function and retrieve follow-up questions.
+   - **Answer Questions**: For each generated question, provide your answers when prompted.
+   - The script will then save your input and answers by calling the `save_data` Azure Function.
+
+### Example Interaction
+
+Below is an example of what an interaction might look like:
+
+```text
+How are you feeling? Describe your symptoms: I have a persistent cough and fever.
+Sending your message to generate questions...
+Questions received:
+Question: How long have you had these symptoms?
+Your answer: 3 days
+Question: Are you experiencing any other symptoms, such as shortness of breath?
+Your answer: Yes, mild shortness of breath.
+Question: Have you been in contact with anyone who is sick recently?
+Your answer: Not that I know of.
+Question: Are you taking any medications or treatments for these symptoms?
+Your answer: No.
+Saving your data...
+Data saved successfully!
+```
+
+### Notes
+
+- The script sends requests to the following endpoints:
+  - `generate_questions`: Generates relevant questions based on your input.
+  - `save_data`: Saves your input and answers for further processing.
+- In case of any errors (e.g., invalid input or server issues), the script will display appropriate error messages.
