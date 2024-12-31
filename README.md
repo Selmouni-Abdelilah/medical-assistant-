@@ -41,7 +41,7 @@ This file defines the Azure Function application, including the routes for gener
     
     ```json
     {
-      "message": "I've been feeling fatigued and I have a mild fever for the last two days.",
+      "message": "I've been feeling fatigued and I have a mild fever for the last two days."
     }
     
     ```

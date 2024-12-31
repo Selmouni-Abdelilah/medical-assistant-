@@ -9,14 +9,8 @@ def get_env_variable(key):
         raise ValueError(f"Environment variable {key} is not set.")
     return value
 
-def get_db_config():
+def get_db_connection_string():
     """
-    Get database connection parameters.
+    Get Azure SQL database connection string from environment variables.
     """
-    return {
-        "dbname": get_env_variable("DB_NAME"),
-        "user": get_env_variable("DB_USER"),
-        "password": get_env_variable("DB_PASSWORD"),
-        "host": get_env_variable("DB_HOST"),
-        "port": get_env_variable("DB_PORT")
-    }
+    return get_env_variable("AZURE_SQL_CONNECTIONSTRING")
