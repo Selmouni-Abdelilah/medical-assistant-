@@ -109,7 +109,7 @@ This handler processes requests to save conversation data (initial symptoms and 
 
 - **`handle_save_data` function**:
     - **Input**: The request body should contain a `"message"` (initial symptoms) and `"questions_and_answers"` (list of questions and answers).
-    - **Output**: Saves the data to the PostgreSQL database and returns a success message.
+    - **Output**: Saves the data to the Azure Sql database and returns a success message.
     - **Error Handling**: Returns a `400` status if required fields are missing, or a `500` status for other errors.
 
 ---
@@ -130,14 +130,14 @@ This service contains the logic for generating questions using GPT (via Azure Op
 
 ## `services/db_service.py`
 
-This service handles the database connection and saving of conversation data to PostgreSQL.
+This service handles the database connection and saving of conversation data to Azure Sql.
 
 - **`connect_to_db` function**:
-    - **Purpose**: Establishes a connection to the PostgreSQL database using credentials from the environment.
+    - **Purpose**: Establishes a connection to the Azure Sql database using the connection string.
     - **Error Handling**: Raises a `ConnectionError` if the database connection fails.
 - **`save_conversation_to_db` function**:
     - **Input**: `initial_symptoms` (patient's symptoms) and `questions_and_answers` (list of follow-up questions and answers).
-    - **Output**: Saves the data to the `MedicalConversations` table in PostgreSQL.
+    - **Output**: Saves the data to the `MedicalConversations` table.
     - **Notes**: If the table does not exist, it will be created automatically. The data includes the initial symptoms and up to 4 follow-up questions with their corresponding answers.
 
 ---
@@ -149,9 +149,9 @@ This module provides functions to retrieve environment variables, such as databa
 - **`get_env_variable(key)` function**:
     - **Purpose**: Fetches an environment variable, raising an exception if the variable is not found.
     - **Usage**: Used throughout the project to retrieve configuration settings like API keys and database connection details.
-- **`get_db_config()` function**:
-    - **Purpose**: Retrieves the database connection parameters from the environment variables.
-    - **Returns**: A dictionary containing the database name, user, password, host, and port.
+- **`get_db_connection_string()` function**:
+    - **Purpose**: Construct the Azure SQL database connection string from individual environment variables.
+    - **Returns**: Azure SQL database connection string.
 
 ---
 
@@ -161,7 +161,7 @@ This file lists the required dependencies for the project, such as:
 
 - `azure-functions` - for working with Azure Functions.
 - `langchain` and `langchain-openai` - for integrating with GPT-4.
-- `psycopg2` - for connecting to PostgreSQL.
+- `pyodbc` - for connecting to Azure sql.
 
 ---
 
@@ -170,11 +170,67 @@ This file lists the required dependencies for the project, such as:
 Ensure that the following environment variables are set:
 
 1. **Azure OpenAI**:
-    - `ConnectionStrings:AZURE_OPENAI_API_KEY`
-    - `ConnectionStrings:AZURE_OPENAI_ENDPOINT`
-2. **PostgreSQL**:
-    - `ConnectionStrings:DB_NAME`
-    - `ConnectionStrings:DB_USER`
-    - `ConnectionStrings:DB_PASSWORD`
-    - `ConnectionStrings:DB_HOST`
-    - `ConnectionStrings:DB_PORT`
+    - `CUSTOMCONNSTR_AZURE_OPENAI_API_KEY`
+    - `CUSTOMCONNSTR_AZURE_OPENAI_ENDPOINT`
+2. **Azure Sql**:
+    - `CUSTOMCONNSTR_AZURE_SQL_SERVER`
+    - `CUSTOMCONNSTR_AZURE_SQL_DATABASE`
+    - `CUSTOMCONNSTR_AZURE_SQL_USER`
+    - `CUSTOMCONNSTR_AZURE_SQL_PASSWORD`
+    - `CUSTOMCONNSTR_DB_PORT`
+Here's an example of a **README** section that explains how to use `test_app.py` to test the application from the console:
+
+---
+
+## Testing the Application from the Console
+
+To test the application, you can use the `test_app.py` script provided. This script interacts with the Azure Functions endpoints to generate questions based on user input and save the corresponding answers.
+
+### Prerequisites
+
+1. **Python Environment**: Ensure you have Python installed (version 3.7 or higher recommended).
+2. **Dependencies**: Install the required libraries by running:
+   ```bash
+   pip install requests
+   ```
+
+### Usage Instructions
+
+1. Open a terminal or command prompt.
+2. Run the `test_app.py` script:
+   ```bash
+   python test_app.py
+   ```
+
+3. Follow the prompts:
+   - **Describe Symptoms**: Enter your symptoms when prompted (e.g., "I have a headache and feel nauseous").
+   - The application will send this information to the `generate_questions` Azure Function and retrieve follow-up questions.
+   - **Answer Questions**: For each generated question, provide your answers when prompted.
+   - The script will then save your input and answers by calling the `save_data` Azure Function.
+
+### Example Interaction
+
+Below is an example of what an interaction might look like:
+
+```text
+How are you feeling? Describe your symptoms: I have a persistent cough and fever.
+Sending your message to generate questions...
+Questions received:
+Question: How long have you had these symptoms?
+Your answer: 3 days
+Question: Are you experiencing any other symptoms, such as shortness of breath?
+Your answer: Yes, mild shortness of breath.
+Question: Have you been in contact with anyone who is sick recently?
+Your answer: Not that I know of.
+Question: Are you taking any medications or treatments for these symptoms?
+Your answer: No.
+Saving your data...
+Data saved successfully!
+```
+
+### Notes
+
+- The script sends requests to the following endpoints:
+  - `generate_questions`: Generates relevant questions based on your input.
+  - `save_data`: Saves your input and answers for further processing.
+- In case of any errors (e.g., invalid input or server issues), the script will display appropriate error messages.
