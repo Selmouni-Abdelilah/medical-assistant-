@@ -1,19 +1,19 @@
-import psycopg2
-from config.settings import get_db_config
+import pyodbc
+from config.settings import get_db_connection_string
 
 def connect_to_db():
     """
-    Establish a connection to the PostgreSQL database.
+    Establish a connection to the Azure SQL database.
     """
     try:
-        db_params = get_db_config()
-        return psycopg2.connect(**db_params)
-    except psycopg2.Error as e:
-        raise ConnectionError(f"Error connecting to PostgreSQL: {e}")
+        connection_string = get_db_connection_string()
+        return pyodbc.connect(connection_string)
+    except pyodbc.Error as e:
+        raise ConnectionError(f"Error connecting to Azure SQL: {e}")
 
 def save_conversation_to_db(initial_symptoms, questions_and_answers):
     """
-    Save conversation data to the database.
+    Save conversation data to the Azure SQL database.
     """
     conn = connect_to_db()
     cursor = conn.cursor()
@@ -21,17 +21,18 @@ def save_conversation_to_db(initial_symptoms, questions_and_answers):
     try:
         # Create table if it doesn't exist
         create_table_query = '''
-        CREATE TABLE IF NOT EXISTS MedicalConversations (
-            id SERIAL PRIMARY KEY,
-            initial_symptoms TEXT NOT NULL,
-            follow_up_question_1 TEXT,
-            answer_1 TEXT,
-            follow_up_question_2 TEXT,
-            answer_2 TEXT,
-            follow_up_question_3 TEXT,
-            answer_3 TEXT,
-            follow_up_question_4 TEXT,
-            answer_4 TEXT
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='MedicalConversations' AND xtype='U')
+        CREATE TABLE MedicalConversations (
+            id INT IDENTITY(1,1) PRIMARY KEY,
+            initial_symptoms NVARCHAR(MAX) NOT NULL,
+            follow_up_question_1 NVARCHAR(MAX),
+            answer_1 NVARCHAR(MAX),
+            follow_up_question_2 NVARCHAR(MAX),
+            answer_2 NVARCHAR(MAX),
+            follow_up_question_3 NVARCHAR(MAX),
+            answer_3 NVARCHAR(MAX),
+            follow_up_question_4 NVARCHAR(MAX),
+            answer_4 NVARCHAR(MAX)
         )
         '''
         cursor.execute(create_table_query)
@@ -50,7 +51,7 @@ def save_conversation_to_db(initial_symptoms, questions_and_answers):
             follow_up_question_3, answer_3, 
             follow_up_question_4, answer_4
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         '''
         cursor.execute(insert_query, (initial_symptoms, *placeholders))
         conn.commit()
