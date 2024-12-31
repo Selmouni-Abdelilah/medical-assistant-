@@ -9,14 +9,18 @@ def get_env_variable(key):
         raise ValueError(f"Environment variable {key} is not set.")
     return value
 
-def get_db_config():
+def get_db_connection_string():
     """
-    Get database connection parameters.
+    Construct the Azure SQL database connection string from individual environment variables.
     """
-    return {
-        "dbname": get_env_variable("DB_NAME"),
-        "user": get_env_variable("DB_USER"),
-        "password": get_env_variable("DB_PASSWORD"),
-        "host": get_env_variable("DB_HOST"),
-        "port": get_env_variable("DB_PORT")
-    }
+    server = get_env_variable("AZURE_SQL_SERVER")
+    database = get_env_variable("AZURE_SQL_DATABASE")
+    username = get_env_variable("AZURE_SQL_USER")
+    password = get_env_variable("AZURE_SQL_PASSWORD")
+    return (
+        f"Driver={{ODBC Driver 18 for SQL Server}};"
+        f"Server=tcp:{server}.database.windows.net,1433;"
+        f"Database={database};"
+        f"UID={username};PWD={password};"
+        "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30"
+    )
